@@ -4,7 +4,7 @@ import {
   FileSystem,
   Permissions,
 } from 'expo';
-import React from 'react';
+import React, {Component} from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,11 +13,31 @@ import {
   Slider,
   Image,
   Picker,
-  Button,
   ScrollView,
   Vibration,
 } from 'react-native';
+import { COLOR, ThemeProvider,Button, Toolbar } from 'react-native-material-ui';
+
 import GalleryScreen from './components/GalleryScreen';
+
+const uiTheme = {
+    palette: {
+        primaryColor: COLOR.green500,
+    },
+    toolbar: {
+      container: {
+        height: '10%',
+        paddingTop: 25,
+      },
+    },
+    button : {
+      container : {
+        height : '10%',
+        bottom : 0
+      }
+    }
+};
+
 
 const flashModeOrder = {
   off: 'on',
@@ -35,7 +55,21 @@ const wbOrder = {
   incandescent: 'auto',
 };
 
-export default class CameraScreen extends React.Component {
+class SubmitButton extends Component {
+
+  render(){
+    const {onPress} = {...this.props};
+    return(
+      <Button raised primary
+        text="Capture"
+        onPress = {() => onPress()}
+      />
+    )
+
+  }
+}
+
+class App extends Component {
   state = {
     flash: 'off',
     zoom: 0,
@@ -70,8 +104,6 @@ export default class CameraScreen extends React.Component {
   };
 
   updatePhotos = (photos) => {
-    console.log("Updating...");
-    console.log(photos)
     this.setState({photos})
   }
 
@@ -177,20 +209,29 @@ export default class CameraScreen extends React.Component {
             backgroundColor: 'transparent',
             flexDirection: 'row',
           }}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.flipButton}
             onPress={ () => this.toggleFacing()}>
             <Text style={styles.flipText}> FLIP </Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={[
+              styles.topRow,
+              styles.flipButton,
+              styles.galleryButton,
+            ]}
+            onPress={this.toggleView.bind(this)}>
+            <Text style={styles.flipText}> Photos </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.flipButton}
+            style={[styles.topRow, styles.flipButton]}
             onPress={() => this.toggleFlash()}>
             <Text style={styles.flipText}>
               {' '}FLASH: {this.state.flash}{' '}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.flipButton}
+            style={[styles.topRow,styles.flipButton]}
             onPress={() => this.toggleWB()}>
             <Text style={styles.flipText}>
               {' '}WB: {this.state.whiteBalance}{' '}
@@ -220,6 +261,11 @@ export default class CameraScreen extends React.Component {
             alignSelf: 'flex-end',
           }}>
           <TouchableOpacity
+            style={[styles.flipButton, { flex: 0.2, alignSelf: 'flex-end' }]}
+            onPress={ () => this.toggleFacing()}>
+            <Text style={styles.flipText}> FLIP </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={[styles.flipButton, { flex: 0.1, alignSelf: 'flex-end' }]}
             onPress={() => this.zoomIn()}>
             <Text style={styles.flipText}> + </Text>
@@ -236,7 +282,7 @@ export default class CameraScreen extends React.Component {
               {' '}AF : {this.state.autoFocus}{' '}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.flipButton,
               styles.picButton,
@@ -244,8 +290,8 @@ export default class CameraScreen extends React.Component {
             ]}
             onPress={this.takePicture.bind(this)}>
             <Text style={styles.flipText}> SNAP </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </TouchableOpacity> */}
+          {/* <TouchableOpacity
             style={[
               styles.flipButton,
               styles.galleryButton,
@@ -253,8 +299,9 @@ export default class CameraScreen extends React.Component {
             ]}
             onPress={this.toggleView.bind(this)}>
             <Text style={styles.flipText}> Gallery </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
+        <SubmitButton onPress = {this.takePicture.bind(this)} />
       </Camera>
     );
   }
@@ -266,6 +313,16 @@ export default class CameraScreen extends React.Component {
       </View>
     );
   }
+}
+
+export default class Main extends Component {
+    render() {
+        return (
+            <ThemeProvider uiTheme={uiTheme}>
+              <App/>
+            </ThemeProvider>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
@@ -281,12 +338,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  topRow : {
+    marginTop : 25
+  },
   flipButton: {
     flex: 0.3,
     height: 40,
     marginHorizontal: 2,
     marginBottom: 10,
-    marginTop: 20,
     borderRadius: 8,
     borderColor: 'white',
     borderWidth: 1,
