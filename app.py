@@ -5,27 +5,15 @@ import location_info
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = '/app/images/uploads'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 # Temp allow get for dev settings
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
-
    if request.method == 'POST':
       print request.form
       message = json.dumps(request.form['imageData'])
-      message = message['responses'][0]['fullTextAnnotation']['text']
-      re.sub('[^a-zA-Z0-9\.]', ' ', message)
-
+      msg = get_image_mssg(image64)
    else:
-      image_file = "app/images/train4.jpg"
-      with open(image_file, "rb") as image_file:
+      with open("app/images/sample1.jpg", "rb") as image_file:
          msg = get_image_mssg(base64.b64encode(image_file.read()))
 
 
@@ -34,42 +22,26 @@ def getImage():
 
 
 def process_image(message):
+
    # print message
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
+   # print resp
 
-   #Add time info
    try:
-      jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
-      jresp['datetime_from'] = extract_hours(resp['entities']['datetime'][0]['from'])
-      jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
-      jresp['datetime_to'] = extract_hours(resp['entities']['datetime'][0]['to'])
+      jdummy = {}
+      jdummy['location'] = "107 Temp Drive, St. Louis, MO"
+      jdummy['title'] = "PennApps"
+      jdummy['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
+      jdummy['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
 
+   # If a range isn't provided
    except KeyError as e:
-      jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
-      jresp['datetime_to'] = resp['entities']['datetime'][0]['values'][0]['value']
+      jdummy['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
+      jdummy['datetime_to'] = resp['entities']['datetime'][0]['values'][0]['value']
 
-   #Add location
-   if('location' in resp['entities']):
-      jresp['location'] = resp['entities']['location'][0]['value']
-   elif('local_search_query' in resp['entities']):
-      jresp['location'] = resp['entities']['local_search_query'][0]['value']
-   else:
-      jresp['location'] = ""
+   return jsonify(jdummy)
 
-
-   #Add event name
-   if('message_subject' in resp['entities'] ):
-      jresp['title'] = resp['entities']['message_subject'][0]['value']
-
-   else:
-      jresp['title'] = ""
-
-   return jsonify(jresp)
-
-
-def extract_hours(timearr):
-   print timearr
 
 # Takes byte string and returns a message text
 def get_image_mssg(encoded_string):
