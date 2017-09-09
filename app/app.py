@@ -1,4 +1,3 @@
-from oauth2client.client import GoogleCredentials
 from flask import Flask, jsonify, render_template, request, json
 import requests, base64
 
