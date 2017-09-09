@@ -32,12 +32,14 @@ def getImage():
             return message
 
    re.sub('[^a-zA-Z0-9\.]', ' ', message)
+   message = message.replace('\n', ' ').replace('\r', '')
+   print message
    jsonResponse = process_image(message)
    return jsonResponse
 
 
 def process_image(message):
-   print message
+
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
    print resp
