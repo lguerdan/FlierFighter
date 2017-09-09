@@ -82,6 +82,10 @@ class App extends Component {
     photoId: 1,
     showGallery: false,
     photos: [],
+    deletePhoto : {
+      enabled : false,
+      fileName : null
+    }
   };
 
   componentDidMount() {
@@ -179,11 +183,38 @@ class App extends Component {
     }
   };
 
+  selectFileToDelete = (photoUri) => {
+
+    const deletePhoto = {
+      enabled : photoUri !== null ? true : false,
+      fileName : photoUri
+    }
+    this.setState({deletePhoto});
+    console.log(this.state)
+  }
+
+  deleteFile = (uri) => {
+    const filePath = `${FileSystem.documentDirectory}photos/${uri}`;
+    const photos = this.state.photos.filter((photo) =>{
+      return photo !== uri;
+    })
+    const deletePhoto = {
+      enabled : false,
+      fileName : null
+    }
+    Expo.FileSystem.deleteAsync(filePath,{idempotent:true});
+
+    this.setState({photos,deletePhoto})
+  }
+
   renderGallery() {
     return <GalleryScreen
       onPress={this.toggleView.bind(this)}
       updatePhotos = {this.updatePhotos}
       photos = {this.state.photos}
+      onLongPress = {this.selectFileToDelete}
+      deletePhotoInfo = {this.state.deletePhoto}
+      deleteFile = {this.deleteFile}
     />;
   }
 

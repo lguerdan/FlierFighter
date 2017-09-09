@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   Text,
   ScrollView,
+  TouchableHighlight
 } from 'react-native';
 import { FileSystem } from 'expo';
+import { Button } from 'react-native-material-ui';
 
 export default class GalleryScreen extends React.Component {
   state = {
-    photos: [],
+    enableDelete: false,
+    fileToDelete : null
   };
 
   componentDidMount() {
@@ -20,7 +23,21 @@ export default class GalleryScreen extends React.Component {
     ).then(photos => this.props.updatePhotos(photos));
   }
 
+
+
+  renderDeleteButton = () => {
+    if (this.props.deletePhotoInfo.enabled){
+      return(<Button raised secondary
+        text="Delete"
+        onPress = {() => console.log('delete',this.props.deleteFile(this.props.deletePhotoInfo.fileName))}/>)
+    }else{
+      return <View />
+    }
+  }
+
+
   render() {
+    console.log(this.props)
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -31,16 +48,24 @@ export default class GalleryScreen extends React.Component {
         <ScrollView contentComponentStyle={{ flex: 1 }}>
           <View style={styles.pictures}>
             {this.props.photos.map(photoUri =>
-              <Image
-                style={styles.picture}
-                source={{
-                  uri: `${FileSystem.documentDirectory}photos/${photoUri}`,
-                }}
-                key={photoUri}
-              />
+              <TouchableHighlight
+                key = {photoUri}
+                onLongPress = { () => {this.props.onLongPress(photoUri)}}
+                onPress = { () => {this.props.onLongPress(null)}}
+                >
+                <Image
+                  style={styles.picture}
+                  source={{
+                    uri: `${FileSystem.documentDirectory}photos/${photoUri}`,
+                  }}
+                  key={photoUri}
+                />
+              </TouchableHighlight>
+
             )}
           </View>
         </ScrollView>
+        {this.renderDeleteButton()}
       </View>
     );
   }
