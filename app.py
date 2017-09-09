@@ -23,7 +23,7 @@ def getImage():
 
       file = request.files['file']
       if file and allowed_file(file.filename):
-         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+         # file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
          image_file = file.filename
 
    else:
