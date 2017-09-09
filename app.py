@@ -17,6 +17,7 @@ def allowed_file(filename):
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
    if request.method == 'POST':
+      print request.files
       if 'file' not in request.files:
             return jsonify({"error": "no file specified"})
 
