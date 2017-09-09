@@ -1,41 +1,33 @@
 from flask import Flask, jsonify, render_template, request, json
-from google.cloud import vision
-from google.cloud.vision import types
+import requests, base64
+
 app = Flask(__name__)
 
 
 @app.route("/", methods=['GET', 'POST'])
 def process_image():
 
-   path = ""
-   """Detects document features in an image."""
-   client = vision.ImageAnnotatorClient()
+   with open("images/sample1.jpg", "rb") as image_file:
+       encoded_string = base64.b64encode(image_file.read())
 
-   with io.open(path, 'rb') as image_file:
-      content = image_file.read()
+   # filestring = "http://cdn.bluefaqs.netdna-cdn.com/wp-content/uploads/2010/06/Cliff.jpg"
 
-   image = types.Image(content=content)
+   request = {}
+   rtype = {}
+   request["image"] = {"content" : encoded_string}
+   request["features"] = []
+   request["features"].append({"type": "TEXT_DETECTION"})
 
-   response = client.document_text_detection(image=image)
-   document = response.full_text_annotation
+   payload = {}
+   payload["requests"] = []
+   payload["requests"].append(request)
 
-   for page in document.pages:
-     for block in page.blocks:
-         block_words = []
-         for paragraph in block.paragraphs:
-             block_words.extend(paragraph.words)
 
-         block_symbols = []
-         for word in block_words:
-             block_symbols.extend(word.symbols)
+   # return 'OK'
 
-         block_text = ''
-         for symbol in block_symbols:
-             block_text = block_text + symbol.text
-
-         print('Block Content: {}'.format(block_text))
-         print('Block Bounds:\n {}'.format(block.bounding_box))
-         """Process image"""
+   r = requests.post("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA-ChOP_rd3Ny2_n8vgQfpY-sViFx3weU0", data=json.dumps(payload))
+   respjson = json.loads(r.text)
+   return json.dumps(respjson)
 
 
 if __name__ == '__main__':
