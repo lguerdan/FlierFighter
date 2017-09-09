@@ -20,41 +20,43 @@ def getImage():
    if request.method == 'POST':
       print request.form
       message = json.dumps(request.form['imageData'])
-      try:
-         message = message['responses'][0]['fullTextAnnotation']['text']
-      except Exception as e:
-         return message
-
-      re.sub('[^a-zA-Z0-9\.]', ' ', message)
 
    else:
-      image_file = "app/images/train2.jpg"
+      image_file = "app/images/train4.jpg"
       with open(image_file, "rb") as image_file:
-         msg = get_image_mssg(base64.b64encode(image_file.read()))
+         message = get_image_mssg(base64.b64encode(image_file.read()))
 
-   print msg
-   jsonResponse = process_image(msg)
+         try:
+            message = message['responses'][0]['fullTextAnnotation']['text']
+         except Exception as e:
+            return message
+
+   re.sub('[^a-zA-Z0-9\.]', ' ', message)
+   jsonResponse = process_image(message)
    return jsonResponse
 
 
 def process_image(message):
-   # print message
+   print message
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
-   print resp['entities']
+   print resp
    jresp = {}
+   jresp['datetime_from'] = ""
+   jresp['datetime_to'] = ""
 
    #Add time info
-   try:
-      jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
-      jresp['datetime_from'] = extract_hours(resp['entities']['datetime'][0]['from'])
-      jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
-      jresp['datetime_to'] = extract_hours(resp['entities']['datetime'][0]['to'])
+   if('datetime' in resp['entities']):
+      try:
+         jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
 
-   except KeyError as e:
-      jresp['datetime_from'] = resp['entities']
-      jresp['datetime_to'] = resp['entities']
-      # jresp['datetime_from'] = resp['entities']
+      except KeyError as e:
+         jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
+         jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
+
+   else:
+      jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
+
 
    #Add location
    if('location' in resp['entities']):
@@ -64,19 +66,14 @@ def process_image(message):
    else:
       jresp['location'] = ""
 
-
    #Add event name
    if('message_subject' in resp['entities'] ):
       jresp['title'] = resp['entities']['message_subject'][0]['value']
-
    else:
       jresp['title'] = ""
 
    return jsonify(jresp)
 
-
-def extract_hours(timearr):
-   print timearr
 
 # Takes byte string and returns a message text
 def get_image_mssg(encoded_string):
