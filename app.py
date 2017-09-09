@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, render_template, request, json
 import requests, base64, os
 from wit import Wit
+import location_info
 
 app = Flask(__name__)
 
-@app.route('/getImage', methods=['POST']):
+@app.route('/getImage', methods=['POST'])
 def getImage():
     image64 = request.json['image']
     msg = get_image_mssg(image64)
@@ -23,8 +24,8 @@ def process_image(message):
    jdummy = {}
    jdummy['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
    jdummy['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
-   jdummy['location'] = "512 Mark Wesley Lane, St. Charles OK"
-   # jdummy['location'] = location_info.extract_location(text)
+   # jdummy['location'] = "512 Mark Wesley Lane, St. Charles OK"
+   jdummy['location'] = location_info.extract_location(text)
    jdummy['title'] = "PennApps"
 
    return jsonify(jdummy)
