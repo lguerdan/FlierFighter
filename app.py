@@ -9,10 +9,11 @@ app = Flask(__name__)
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
    if request.method == 'POST':
+      print request.json
       image64 = request.json['image']
       msg = get_image_mssg(image64)
    else:
-      with open("app/images/sample1.jpg", "rb") as image_file:
+      with open("app/images/train1.jpg", "rb") as image_file:
          msg = get_image_mssg(base64.b64encode(image_file.read()))
 
    jsonResponse = process_image(msg)
@@ -21,10 +22,8 @@ def getImage():
 
 def process_image(message):
 
-   print message
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
-   print resp
 
    try:
       jdummy = {}
