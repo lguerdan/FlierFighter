@@ -15,8 +15,8 @@ def getWeatherData(location, date):
     location = geolocator.geocode(location)
     lat = str(location.latitude)
     lon = str(location.longitude)
-    print lat
-    print lon
+    # print lat
+    # print lon
     # https://earthnetworks.azure-api.net/data/forecasts/v1/daily?locationtype=
     # latitudelongitude&location=34.1144504,-118.7778678
 
@@ -49,5 +49,47 @@ def getWeatherData(location, date):
     # we assume data is in a format 2017-09-09...
     return None 
 
+
+'''
+Gets the estimated fare and offers to order a lyft ride
+'''
 def getLyftData(destination, origin):
-    return 0
+    authToken = \
+        ("N+3uBHIGeHDpISQtE++3eS0O/" +
+        "3HdeK4bGLXm2DEsOm312fJD93VnnNIV/" +
+        "EyTg5HlrQk8R/330TrDN8fV3uk2oT7LDxpqmPMDccmk6B9zQHws" +
+        "/txDw9npKjg=")
+    geolocator = Nominatim()
+    destinationL = geolocator.geocode(destination)
+    latD = destinationL.latitude
+    lonD = destinationL.longitude
+    originL = geolocator.geocode(origin)
+    latO = originL.latitude
+    lonO = originL.longitude
+    headers = {
+        'Authorization': 'bearer '+authToken
+    }
+
+    params = (
+        ('start_lat', latO),
+        ('start_lng', lonO),
+        ('end_lat', latD),
+        ('end_lng', lonD),
+        ('ride_type', 'lyft'),
+    )
+
+    rideData = [] # A list of dictionaries about ride data
+    overallDuration = 0
+    r = requests.get('https://api.lyft.com/v1/cost', headers=headers, params=params)
+    if r.status_code == 200:
+        data = json.loads(r.text)
+        for costJson in data['cost_estimates']:
+            rideEntry = {}
+            rideEntry['display_name'] = costJson['display_name']
+            rideEntry['estimated_cost_cents_max'] = costJson['estimated_cost_cents_max']
+            rideEntry['estimated_cost_cents_min'] = costJson['estimated_cost_cents_min']
+            rideEntry['primetime_percentage'] = costJson['primetime_percentage']
+            rideData.append(rideEntry)
+            overallDuration = costJson['estimated_duration_seconds']
+        return (rideData, overallDuration)
+    return None
