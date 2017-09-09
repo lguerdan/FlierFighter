@@ -40,6 +40,7 @@ class App extends Component {
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.back,
+    hasTakenPhoto : false
   };
 
   async componentWillMount() {
@@ -55,8 +56,13 @@ class App extends Component {
     });
   }
 
+  handlePhotoCapture = () => {
+    const hasTakenPhoto = ! this.state.hasTakenPhoto;
+    this.setState({hasTakenPhoto});
+  }
+
   render(){
-    const { hasCameraPermission } = this.state;
+    const { hasCameraPermission,type,hasTakenPhoto } = this.state;
     return (
       <View>
         <Toolbar
@@ -65,20 +71,50 @@ class App extends Component {
         />
         <CameraContainer
           hasCameraPermission = {hasCameraPermission}
+          hasTakenPhoto = {hasTakenPhoto}
+          type = {type}
           handleTouchableOpacityPress = {this.handleTouchableOpacityPress}
-          type = {this.state.type}
+
         />
 
-        <Button primary text="Capture"/>
+        <SubmitButton
+          hasCameraPermission = {hasCameraPermission}
+          hasTakenPhoto = {hasTakenPhoto}
+          handlePhotoCapture = {this.handlePhotoCapture}
+        />
       </View>
     )
   }
 }
 
+class SubmitButton extends Component {
+
+  render(){
+
+    const {hasTakenPhoto,hasCameraPermission} = {...this.props};
+
+    if (!hasTakenPhoto && hasCameraPermission){
+      return(
+        <Button raised primary
+          text="Capture"
+          onPress = {() => this.props.handlePhotoCapture()}
+        />
+      )
+    }
+    else {
+      return(
+        <Button raised primary disabled
+          text="Capture"
+        />
+      )
+    }
+  }
+}
+
 class CameraContainer extends Component {
   render(){
-    const hasCameraPermission = this.props.hasCameraPermission;
-    if (!hasCameraPermission){
+    const {hasCameraPermission,hasTakenPhoto} = {...this.props};
+    if (!hasCameraPermission || hasTakenPhoto){
       return <View style = {{height : '80%'}} />
     }
     else {
