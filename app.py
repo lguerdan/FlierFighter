@@ -4,12 +4,18 @@ from wit import Wit
 
 app = Flask(__name__)
 
+@app.route('/getImage', methods=['POST']):
+def getImage():
+    image64 = request.json['image']
+    msg = get_image_mssg(image64)
+    jsonResponse = process_image(msg)
+    return jsonResponse
 
-@app.route("/new", methods=['POST', 'GET'])
-def process_image():
 
-   with open("app/images/sample1.jpg", "rb") as image_file:
-      message = get_image_mssg(base64.b64encode(image_file.read()))
+def process_image(message):
+
+#    with open("app/images/sample1.jpg", "rb") as image_file:
+#       message = get_image_mssg(base64.b64encode(image_file.read()))
 
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
