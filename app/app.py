@@ -10,7 +10,7 @@ def process_image():
    print request.json
 
 
-   with open("images/sample1.jpg", "rb") as image_file:
+   with open("app/images/sample1.jpg", "rb") as image_file:
        encoded_string = base64.b64encode(image_file.read())
 
    img_request = {}
@@ -31,4 +31,4 @@ def process_image():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(port=8080)
