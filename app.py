@@ -12,8 +12,24 @@ def confirmation():
     '''Use confirmation data'''
     '''Get weather data'''
     '''Get Lyft data, etc...'''
-
-    return jsonResponse
+    if request.method == 'POST':
+        current_location = request['currLocation']
+        dest_location = request['location']
+        start_time = request['datetime_from']
+        response = {}
+        weather_info = extraData.getWeatherData(dest_location, start_time)
+        if weather_info:
+            response['weather'] = \
+                weather_info
+        else:
+            response['weather'] = {}
+        lyft_info = extraData.getLyftData(dest_location, current_location)
+        if lyft_info:
+            response['lyft'] = \
+                lyft_info
+        else:
+            response['lyft'] = {}
+    return response
 
    jsonResponse = process_image(msg)
    return jsonResponse
