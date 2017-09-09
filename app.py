@@ -16,32 +16,27 @@ def allowed_file(filename):
 # Temp allow get for dev settings
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
-   if request.method == 'POST':
-      print request.files
-      if 'file' not in request.files:
-            return jsonify({"error": "no file specified"})
 
-      file = request.files['file']
-      if file and allowed_file(file.filename):
-         # file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-         image_file = file.filename
-         msg = get_image_mssg(base64.b64encode(image_file.read()))
+   if request.method == 'POST':
+      print request.form
+      message = json.dumps(request.form['imageData'])
+      message = message['responses'][0]['fullTextAnnotation']['text']
+      re.sub('[^a-zA-Z0-9\.]', ' ', message)
 
    else:
       image_file = "app/images/train4.jpg"
       with open(image_file, "rb") as image_file:
          msg = get_image_mssg(base64.b64encode(image_file.read()))
 
+
    jsonResponse = process_image(msg)
    return jsonResponse
 
 
 def process_image(message):
-
+   # print message
    client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
    resp = client.message(message)
-   jresp = {}
-   print json.dumps(resp)
 
    #Add time info
    try:
@@ -78,6 +73,7 @@ def extract_hours(timearr):
 
 # Takes byte string and returns a message text
 def get_image_mssg(encoded_string):
+   print encoded_string
    img_request = {}
    rtype = {}
    img_request["image"] = {"content" : encoded_string}
@@ -90,8 +86,8 @@ def get_image_mssg(encoded_string):
 
    r = requests.post("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA-ChOP_rd3Ny2_n8vgQfpY-sViFx3weU0", data=json.dumps(payload))
    respjson = json.loads(r.text)
-   message = respjson['responses'][0]['fullTextAnnotation']['text']
-   return re.sub('[^a-zA-Z0-9\.]', ' ', message)
+   # print respjson
+   return respJson
 
 
 if __name__ == '__main__':
