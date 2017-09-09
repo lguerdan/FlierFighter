@@ -1,3 +1,5 @@
 Flask==0.12.2
 requests==2.14.2
 wit==4.3.0
+smartystreets_python_sdk==3.1.2
+datefinder==0.6.1
