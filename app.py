@@ -18,6 +18,7 @@ def process_image():
    jdummy['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
    jdummy['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
    jdummy['location'] = "512 Mark Wesley Lane, St. Charles OK"
+   # jdummy['location'] = location_info.extract_location(text)
    jdummy['title'] = "PennApps"
 
    return jsonify(jdummy)
