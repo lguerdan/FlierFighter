@@ -89,7 +89,6 @@ class App extends Component {
     whiteBalance: 'auto',
     ratio: '16:9',
     ratios: [],
-    photoId: 1,
     showGallery: false,
     photos: [],
     deletePhoto : {
@@ -107,7 +106,6 @@ class App extends Component {
         FileSystem.documentDirectory + 'photos'
       ).then(photos => {
         this.updatePhotos(photos)
-        this.setState({photoId : photos.length + 1});
       });
     });
   }
@@ -180,20 +178,15 @@ class App extends Component {
   }
 
   savePicture = (data) => {
+    const re = /[a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*.jpg/
+    const name = re.exec(data)[0]
     FileSystem.moveAsync({
       from: data,
-      to: `${FileSystem.documentDirectory}photos/Photo_${this.state
-        .photoId}.jpg`,
-    }).then(() => this.FinishPictureSave());
+      to: `${FileSystem.documentDirectory}photos/Photo_${name}`,
+    }).then(() => Vibration.vibrate());
   }
 
-  FinishPictureSave = () => {
-    const photoId = this.state.photoId + 1;
-    this.setState({
-      photoId
-    });
-    Vibration.vibrate();
-  };
+
 
   takePicture = async function() {
     if (this.camera) {
