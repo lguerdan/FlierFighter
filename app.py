@@ -5,12 +5,27 @@ import location_info
 
 app = Flask(__name__)
 
-@app.route('/getImage', methods=['POST'])
-def getImage():
-    image64 = request.json['image']
-    msg = get_image_mssg(image64)
-    jsonResponse = process_image(msg)
+
+'''Receives confirmation from app'''
+@app.route('/confirmation', methods=['POST'])
+def confirmation():
+    '''Use confirmation data'''
+    '''Get weather data'''
+    '''Get Lyft data, etc...'''
+    
     return jsonResponse
+
+
+@app.route('/getImage', methods=['POST', 'GET'])
+def getImage():
+    if request.method == 'POST':
+        image64 = request.json['image']
+        msg = get_image_mssg(image64)
+        jsonResponse = process_image(msg)
+        return jsonResponse
+    else:
+        msg = "HELLO MAY 1 AT 192 DRYDEN AVENUE"
+        return location_info.extract_location(msg)
 
 
 def process_image(message):
@@ -25,9 +40,9 @@ def process_image(message):
    jdummy['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
    jdummy['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
    # jdummy['location'] = "512 Mark Wesley Lane, St. Charles OK"
-   jdummy['location'] = location_info.extract_location(text)
+   jdummy['location'] = location_info.extract_location(message)
    jdummy['title'] = "PennApps"
-
+   jdummy['people'] = get_human_names(message)
    return jsonify(jdummy)
 
 
