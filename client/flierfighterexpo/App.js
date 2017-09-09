@@ -9,14 +9,14 @@ const uiTheme = {
         primaryColor: COLOR.green500,
     },
     toolbar: {
-        container: {
-            height: 75,
-            paddingTop: 25,
-        },
+      container: {
+        height: '10%',
+        paddingTop: 25,
+      },
     },
     button : {
       container : {
-        height : 50,
+        height : '10%',
         bottom : 0
       }
     }
@@ -42,7 +42,7 @@ class App extends Component {
           leftElement = "menu"
           rightElement = "account-circle"
         />
-
+        <CameraContainer/>
 
         <Button primary text="Capture"/>
       </View>
@@ -50,13 +50,14 @@ class App extends Component {
   }
 }
 
-
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-// });
+class CameraContainer extends Component {
+  render(){
+    return(
+      <View style = {{height : '80%'}}>
+        <Text>
+          Camera
+        </Text>
+      </View>
+    )
+  }
+}
