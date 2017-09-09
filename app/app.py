@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, render_template, request, json
+from google.cloud import vision
+from google.cloud.vision import types
 app = Flask(__name__)
 
 
@@ -10,7 +12,7 @@ def process_image():
    client = vision.ImageAnnotatorClient()
 
    with io.open(path, 'rb') as image_file:
-     content = image_file.read()
+      content = image_file.read()
 
    image = types.Image(content=content)
 
