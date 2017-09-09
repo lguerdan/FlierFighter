@@ -5,3 +5,4 @@ smartystreets_python_sdk==3.1.2
 datefinder==0.6.1
 nameparser==0.5.3
 nltk==3.1
+geopy==1.11.0

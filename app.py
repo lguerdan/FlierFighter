@@ -2,27 +2,20 @@ from flask import Flask, jsonify, render_template, request, json
 import requests, base64, os, re
 from wit import Wit
 import location_info
+import extraData
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = '/app/images/uploads'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Temp allow get for dev settings
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
 
    if request.method == 'POST':
-      print request.json['imageData'].encode("utf-8")
       message = json.dumps(request.json['imageData'].encode("utf-8"))
 
    else:
-      image_file = "app/images/train4.jpg"
+      image_file = "app/images/train6.jpg"
       with open(image_file, "rb") as image_file:
          message = get_image_mssg(base64.b64encode(image_file.read()))
 
@@ -33,16 +26,19 @@ def getImage():
 
    re.sub('[^a-zA-Z0-9\.]', ' ', message)
    message = message.replace('\n', ' ').replace('\r', '')
-   print message
+   # print message
    jsonResponse = process_image(message)
    return jsonResponse
 
 
 def process_image(message):
 
-   client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
-   resp = client.message(message)
-   print resp
+   try:
+      client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
+      resp = client.message(message)
+   except Exception as e:
+      return jsonify({error: 'Failed to parse image response. Request may be too long.'})
+
    jresp = {}
    jresp['datetime_from'] = ""
    jresp['datetime_to'] = ""
@@ -74,8 +70,32 @@ def process_image(message):
    else:
       jresp['title'] = ""
 
+   print jresp
    return jsonify(jresp)
 
+@app.route('/confirmation', methods=['POST'])
+def confirmation():
+    '''Use confirmation data'''
+    '''Get weather data'''
+    '''Get Lyft data, etc...'''
+    if request.method == 'POST':
+        current_location = request['currLocation']
+        dest_location = request['location']
+        start_time = request['datetime_from']
+        response = {}
+        weather_info = extraData.getWeatherData(dest_location, start_time)
+        if weather_info:
+            response['weather'] = \
+                weather_info
+        else:
+            response['weather'] = {}
+        lyft_info = extraData.getLyftData(dest_location, current_location)
+        if lyft_info:
+            response['lyft'] = \
+                lyft_info
+        else:
+            response['lyft'] = {}
+    return response
 
 # Takes byte string and returns a message text
 def get_image_mssg(encoded_string):
