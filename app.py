@@ -18,8 +18,8 @@ def allowed_file(filename):
 def getImage():
 
    if request.method == 'POST':
-      print request['imageData']
-      message = json.dumps(request['imageData'])
+      print request.json['imageData']
+      message = json.dumps(request.json['imageData'])
 
    else:
       image_file = "app/images/train4.jpg"
