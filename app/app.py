@@ -1,14 +1,20 @@
 from oauth2client.client import GoogleCredentials
 from flask import Flask, jsonify, render_template, request, json
+<<<<<<< HEAD
 from google.cloud import vision
 from google.cloud.vision import types
 import requests
+=======
+import requests, base64
+
+>>>>>>> 937dcdac7e4ea6df8868719ec3117944aefcd8ae
 app = Flask(__name__)
 
 
 @app.route("/", methods=['GET', 'POST'])
 def process_image():
 
+<<<<<<< HEAD
    path = ""
    """Detects document features in an image."""
    client = vision.ImageAnnotatorClient(key=AIzaSyA-ChOP_rd3Ny2_n8vgQfpY-sViFx3weU0)
@@ -18,27 +24,29 @@ def process_image():
 
    image = types.Image(content=content)
    credentials = GoogleCredentials.get_application_default()
+=======
+   with open("images/sample1.jpg", "rb") as image_file:
+       encoded_string = base64.b64encode(image_file.read())
 
-   response = client.document_text_detection(image=image)
-   document = response.full_text_annotation
+   # filestring = "http://cdn.bluefaqs.netdna-cdn.com/wp-content/uploads/2010/06/Cliff.jpg"
+>>>>>>> 937dcdac7e4ea6df8868719ec3117944aefcd8ae
 
-   for page in document.pages:
-     for block in page.blocks:
-         block_words = []
-         for paragraph in block.paragraphs:
-             block_words.extend(paragraph.words)
+   request = {}
+   rtype = {}
+   request["image"] = {"content" : encoded_string}
+   request["features"] = []
+   request["features"].append({"type": "TEXT_DETECTION"})
 
-         block_symbols = []
-         for word in block_words:
-             block_symbols.extend(word.symbols)
+   payload = {}
+   payload["requests"] = []
+   payload["requests"].append(request)
 
-         block_text = ''
-         for symbol in block_symbols:
-             block_text = block_text + symbol.text
 
-         print('Block Content: {}'.format(block_text))
-         print('Block Bounds:\n {}'.format(block.bounding_box))
-         """Process image"""
+   # return 'OK'
+
+   r = requests.post("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA-ChOP_rd3Ny2_n8vgQfpY-sViFx3weU0", data=json.dumps(payload))
+   respjson = json.loads(r.text)
+   return json.dumps(respjson)
 
 
 def send_image(image):
