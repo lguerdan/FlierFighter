@@ -25,12 +25,12 @@ def getImage():
       if file and allowed_file(file.filename):
          # file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
          image_file = file.filename
+         msg = get_image_mssg(base64.b64encode(image_file.read()))
 
    else:
       image_file = "app/images/train4.jpg"
-
-   with open(image_file, "rb") as image_file:
-      msg = get_image_mssg(base64.b64encode(image_file.read()))
+      with open(image_file, "rb") as image_file:
+         msg = get_image_mssg(base64.b64encode(image_file.read()))
 
    jsonResponse = process_image(msg)
    return jsonResponse
