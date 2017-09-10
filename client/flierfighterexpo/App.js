@@ -99,6 +99,11 @@ class App extends Component {
     else {
       return (
         <View style = {styles.container}>
+          <TouchableOpacity
+            style={{ margin: 5, padding: 5, backgroundColor: '#ddd' }}
+            onPress={this.restart}>
+            <Text>Start Over</Text>
+          </TouchableOpacity>
           <Text>Please Correct Gathered Info</Text>
           <TextInput
             style={{height: 80, borderColor: 'gray', borderWidth: 1, width: '80%',margin: 10}}
@@ -137,6 +142,20 @@ class App extends Component {
         </View>
       )
     }
+  }
+
+  restart = () => {
+    this.setState({
+      imageUri : null,
+      location: null,
+      text : null,
+      ORC : false,
+      eventDetail : false,
+      datetime_from:null,
+      datetime_to:null,
+      title:null,
+      position:null
+    })
   }
 
   submitCorrections = async () => {
