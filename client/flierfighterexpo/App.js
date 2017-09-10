@@ -16,13 +16,14 @@ import {
   ScrollView,
   Vibration,
 } from 'react-native';
-import { COLOR, ThemeProvider,Button, Toolbar } from 'react-native-material-ui';
+import { COLOR, ThemeProvider,Button,Dialog, DialogDefaultActions } from 'react-native-material-ui';
 
 import GalleryScreen from './components/GalleryScreen';
 
 const uiTheme = {
     palette: {
-        primaryColor: COLOR.green500,
+        primaryColor: COLOR.green600,
+        secondaryColor : COLOR.amber600
     },
     toolbar: {
       container: {
@@ -35,7 +36,15 @@ const uiTheme = {
         height : '10%',
         bottom : 0
       }
-    }
+    },
+    dialog : {
+      container: {
+        height: '70%',
+        width : '70%',
+        marginLeft:  '15%',
+        marginTop: '35%'
+      }
+    },
 };
 
 
@@ -75,29 +84,28 @@ class App extends Component {
     zoom: 0,
     autoFocus: 'on',
     depth: 0,
+    data : null,
     type: 'back',
     whiteBalance: 'auto',
     ratio: '16:9',
     ratios: [],
-    photoId: 1,
     showGallery: false,
     photos: [],
     deletePhoto : {
       enabled : false,
       fileName : null
-    }
+    },
+    pictureTaken : false
   };
 
   componentDidMount() {
     FileSystem.makeDirectoryAsync(
       FileSystem.documentDirectory + 'photos'
     ).catch(e => {
-      console.log(e, 'Directory exists');
       FileSystem.readDirectoryAsync(
         FileSystem.documentDirectory + 'photos'
       ).then(photos => {
         this.updatePhotos(photos)
-        this.setState({photoId : photos.length + 1});
       });
     });
   }
@@ -165,23 +173,43 @@ class App extends Component {
     });
   }
 
+  confirmPicture = (data) => {
+    this.setState({pictureTaken : true,data});
+  }
+
+  savePicture = (data) => {
+    const re = /[a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*[-][a-z0-9]*.jpg/
+    const name = re.exec(data)[0]
+    FileSystem.moveAsync({
+      from: data,
+      to: `${FileSystem.documentDirectory}photos/Photo_${name}`,
+    }).then(() => Vibration.vibrate());
+  }
+
+
+
   takePicture = async function() {
     if (this.camera) {
-      this.camera.takePictureAsync().then(data => {
-        FileSystem.moveAsync({
-          from: data,
-          to: `${FileSystem.documentDirectory}photos/Photo_${this.state
-            .photoId}.jpg`,
-        }).then(() => {
-          const photoId = this.state.photoId + 1;
-          this.setState({
-            photoId
-          });
-          Vibration.vibrate();
-        });
-      });
+      this.camera.takePictureAsync().then(data => this.confirmPicture(data));
     }
   };
+  // takePicture = async function() {
+  //   if (this.camera) {
+  //     this.camera.takePictureAsync().then(data => {
+  //       FileSystem.moveAsync({
+  //         from: data,
+  //         to: `${FileSystem.documentDirectory}photos/Photo_${this.state
+  //           .photoId}.jpg`,
+  //       }).then(() => {
+  //         const photoId = this.state.photoId + 1;
+  //         this.setState({
+  //           photoId
+  //         });
+  //         Vibration.vibrate();
+  //       });
+  //     });
+  //   }
+  // };
 
   selectFileToDelete = (photoUri) => {
 
@@ -190,7 +218,6 @@ class App extends Component {
       fileName : photoUri
     }
     this.setState({deletePhoto});
-    console.log(this.state)
   }
 
   deleteFile = (uri) => {
@@ -313,34 +340,75 @@ class App extends Component {
               {' '}AF : {this.state.autoFocus}{' '}
             </Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={[
-              styles.flipButton,
-              styles.picButton,
-              { flex: 0.3, alignSelf: 'flex-end' },
-            ]}
-            onPress={this.takePicture.bind(this)}>
-            <Text style={styles.flipText}> SNAP </Text>
-          </TouchableOpacity> */}
-          {/* <TouchableOpacity
-            style={[
-              styles.flipButton,
-              styles.galleryButton,
-              { flex: 0.25, alignSelf: 'flex-end' },
-            ]}
-            onPress={this.toggleView.bind(this)}>
-            <Text style={styles.flipText}> Gallery </Text>
-          </TouchableOpacity> */}
+
         </View>
         <SubmitButton onPress = {this.takePicture.bind(this)} />
       </Camera>
     );
   }
 
+  renderDialog = () => {
+    return (
+      <Dialog>
+        <Dialog.Title><Text>Confirm Picture</Text></Dialog.Title>
+        <Dialog.Content>
+          <Image
+            style={styles.picture}
+            source={{
+              uri: `${this.state.data}`,
+            }}
+            key={this.state.data}
+          />
+        </Dialog.Content>
+        {/* <Dialog.Actions>
+          <DialogDefaultActions
+            style = {{container : {height : 10}}}
+             actions={['Discard', 'Keep']}
+             onActionPress={(event) => {
+               if (event === 'keep'){
+                   this.savePicture(this.state.data)
+               }
+              else {
+                this.deleteFile(this.state.data)
+                this.setState({date : null, pictureTaken : false})
+              }
+             }}
+          />
+        </Dialog.Actions> */}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            flexDirection: 'row',
+            justifyContent : 'space-around',
+            height: 30
+          }}>
+          <Button raised secondary
+            text="Discard"
+            onPress = {() => {
+              this.deleteFile(this.state.data)
+              this.setState({date : null, pictureTaken : false})
+            }}
+            style = {{padding : 10}}
+          />
+          <Button raised primary
+            text="Keep"
+            onPress = {() => {
+              this.savePicture(this.state.data);
+              this.setState({date : null, pictureTaken : false});
+            }}
+          />
+        </View>
+
+      </Dialog>
+    )
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        {this.state.showGallery ? this.renderGallery() : this.renderCamera()}
+        {/* {this.state.showGallery ? this.renderGallery() : this.renderCamera()} */}
+        {this.state.pictureTaken ? this.renderDialog() : (this.state.showGallery ? this.renderGallery() : this.renderCamera())}
       </View>
     );
   }
@@ -405,5 +473,11 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+  },
+  picture: {
+    width: 250,
+    height: 250,
+    margin: 0,
+    resizeMode: 'contain',
   },
 });
