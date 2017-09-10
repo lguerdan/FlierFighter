@@ -23,7 +23,7 @@ def process_image(res, message):
    # responses = res['responses'][0]
    # textT = responses['textAnnotations']
    # descript = textT[0]['description']
-
+   descript = res
    descript = descript.split('\n')
    #Add location if it is valid
    geolocator = Nominatim()
