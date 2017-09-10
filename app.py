@@ -21,18 +21,18 @@ def getImage():
 
          try:
             message = message['responses'][0]['fullTextAnnotation']['text']
+            print message
          except Exception as e:
             return message
 
    re.sub('[^a-zA-Z0-9\.]', ' ', message)
    message = message.replace('\n', ' ').replace('\r', '')
    # print message
-   jsonResponse = process_image(message)
+   jsonResponse = process_image(location_info.reduce_text(message))
    return jsonResponse
 
 
 def process_image(message):
-
    try:
       client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
       resp = client.message(message)
