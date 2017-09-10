@@ -3,6 +3,7 @@ from flask import jsonify
 from wit import Wit
 from geopy.geocoders import Nominatim
 from dateutil.parser import parse
+import auth
 
 
 def is_date(string):
@@ -20,9 +21,6 @@ def process_image(res, message):
    jresp['title'] = message.split('\N')[0]
    ' '.join(jresp['title'].split())
 
-   # responses = res['responses'][0]
-   # textT = responses['textAnnotations']
-   # descript = textT[0]['description']
    descript = message.replace('\N', '\n')
    descript = descript.split('\n')
    print "The number of newlines: " + str(len(descript))
@@ -47,23 +45,8 @@ def process_image(res, message):
                    print "address is: " + location.address
                    break
 
-   # for line in message.split('\n')[1:]:
-   #    try:
-   #       if line.count(' ') > 0 \
-   #       and not is_date(d) \
-   #       and not re.match('\d{2}:\d{2}:\d{2}', d) \
-   #       and "PM" not in d \
-   #       and "AM" not in d:
-   #          location = geolocator.geocode(line)
-   #          if(location and location.longitude < -30.0):
-   #             jresp['location'] = location.address
-   #             break
-
-      # except Exception as e:
-      #    pass
-
    try:
-      client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
+      client = Wit(auth.wit_key)
       resp = client.message(message)
    except Exception as e:
       return jsonify({'error': 'Failed to parse image response. Request may be too long.'})
@@ -93,19 +76,6 @@ def process_image(res, message):
          jresp['datetime_from'] = ""
          jresp['datetime_from'] = ""
 
-   # if('location' not in jresp):
-   #    # Add location if not already set
-   #    if('location' in resp['entities']):
-   #       jresp['location'] = resp['entities']['location'][0]['value']
-   #    elif('local_search_query' in resp['entities']):
-   #       jresp['location'] = resp['entities']['local_search_query'][0]['value']
-   #    else:
-   #       jresp['location'] = ""
-
-   # Sanatize input
-   # re.sub('[^a-zA-Z0-9\.]', ' ', jresp['location'])
-   # ' '.join(jresp['location'].split())
-
    re.sub('[^a-zA-Z0-9\.]', ' ', jresp['datetime_from'])
    ' '.join(jresp['datetime_from'].split())
 
@@ -128,7 +98,8 @@ def get_image_mssg(encoded_string):
    payload["requests"] = []
    payload["requests"].append(img_request)
 
-   r = requests.post("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA-ChOP_rd3Ny2_n8vgQfpY-sViFx3weU0", data=json.dumps(payload))
+   request_string = 'https://vision.googleapis.com/v1/images:annotate?key=' + auth.vision_key
+   r = requests.post(request_string, data=json.dumps(payload))
    res = json.loads(r.text)
 
    return res

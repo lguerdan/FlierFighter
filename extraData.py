@@ -1,8 +1,5 @@
 from geopy.geocoders import Nominatim
-import requests
-import httplib, urllib, base64
-import json
-
+import httplib, urllib, base64, json, httplib, auth
 
 def getWeatherData(location, date):
     '''
@@ -26,7 +23,7 @@ def getWeatherData(location, date):
         'cultureInfo': 'en-en',
     })
     headers = {
-        'Ocp-Apim-Subscription-Key': '391c2d3855f34ce5b1f82af1340e56a1',
+        'Ocp-Apim-Subscription-Key': auth.weather_key,
     }
     try:
         conn = httplib.HTTPSConnection('earthnetworks.azure-api.net')
@@ -41,24 +38,19 @@ def getWeatherData(location, date):
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
         data = []
-    
+
     for day in data['dailyForecastPeriods']:
         if date[5:9] == day['forecastDateLocalStr'][5:9]: # look at just the month/day
             # get weather data
             return day['detailedDescription']
     # we assume data is in a format 2017-09-09...
-    return None 
-
+    return None
 
 '''
 Gets the estimated fare and offers to order a lyft ride
 '''
 def getLyftData(destination, origin):
-    authToken = \
-        ("N+3uBHIGeHDpISQtE++3eS0O/" +
-        "3HdeK4bGLXm2DEsOm312fJD93VnnNIV/" +
-        "EyTg5HlrQk8R/330TrDN8fV3uk2oT7LDxpqmPMDccmk6B9zQHws" +
-        "/txDw9npKjg=")
+
     geolocator = Nominatim()
     destinationL = geolocator.geocode(destination)
     latD = destinationL.latitude
@@ -67,7 +59,7 @@ def getLyftData(destination, origin):
     latO = originL.latitude
     lonO = originL.longitude
     headers = {
-        'Authorization': 'bearer '+authToken
+        'Authorization': 'bearer '+ auth.lift_key
     }
 
     params = (
