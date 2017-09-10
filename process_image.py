@@ -20,9 +20,9 @@ def process_image(res, message):
    jresp['title'] = message.split('\n')[0]
    ' '.join(jresp['title'].split())
 
-   responses = res['responses'][0]
-   textT = responses['textAnnotations']
-   descript = textT[0]['description']
+   # responses = res['responses'][0]
+   # textT = responses['textAnnotations']
+   # descript = textT[0]['description']
 
    descript = descript.split('\n')
    #Add location if it is valid
