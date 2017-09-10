@@ -27,7 +27,7 @@ def getImage():
          except Exception as e:
             return message
 
-   jsonResponse = process_image.process_image(message)
+   jsonResponse = process_image.process_image(res, message)
    return jsonResponse
 
 
