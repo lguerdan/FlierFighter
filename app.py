@@ -21,8 +21,8 @@ def getImage():
          except Exception as e:
             return message
 
-   # re.sub('[^a-zA-Z0-9\.]', ' ', message)
-   # message = message.replace('\n', ' ').replace('\r', '')
+   re.sub('[^a-zA-Z0-9\.]', ' ', message)
+   message = message.replace('\n', ' ').replace('\r', '')
    # print message
    jsonResponse = process_image.process_image(message)
    return jsonResponse
