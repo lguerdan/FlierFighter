@@ -10,7 +10,7 @@ def process_image(message):
    jresp['title'] = message.split('\n')[0]
    ' '.join(jresp['title'].split())
 
-   #Add location if it is valid
+   # Add location if it is valid
    geolocator = Nominatim()
    for line in message.split('\n')[1:]:
       try:
@@ -27,7 +27,7 @@ def process_image(message):
    except Exception as e:
       return jsonify({'error': 'Failed to parse image response. Request may be too long.'})
 
-   #Add time info
+   # Add time info
    jresp['datetime_from'] = ""
    jresp['datetime_to'] = ""
    try:
@@ -53,7 +53,7 @@ def process_image(message):
          jresp['datetime_from'] = ""
 
    if('location' not in jresp):
-      #Add location if not already set
+      # Add location if not already set
       if('location' in resp['entities']):
          jresp['location'] = resp['entities']['location'][0]['value']
       elif('local_search_query' in resp['entities']):

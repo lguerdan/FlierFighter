@@ -3,7 +3,20 @@ from smartystreets_python_sdk import StaticCredentials, exceptions, ClientBuilde
 from smartystreets_python_sdk.us_extract import Lookup
 import datefinder
 import nltk
+from nltk import word_tokenize
 from nameparser.parser import HumanName
+# from nltk.corpus import stopwords
+
+'''
+Returns an array of words with stop words reduced
+'''
+def reduce_text(text):
+    stop = set(stopwords.words('english'))
+    reduced = [i for i in text.lower().split() if i not in stop]
+    main = ""
+    for word in reduced:
+        main = main + word + " "
+    return main
 
 
 '''This method takes the text and extracts the location'''
