@@ -25,6 +25,7 @@ def process_image(res, message):
    # descript = textT[0]['description']
    descript = res
    descript = descript.split('\n')
+   print "The number of newlines: " + len(descript)
    #Add location if it is valid
    geolocator = Nominatim()
    for d in descript[::-1]:
