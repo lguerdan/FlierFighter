@@ -22,10 +22,8 @@ def getImage():
          res = message
 
          try:
-            # print json.dumps(json.loads(message), indent=4)
-            # print json.dumps(message)
             message = message['responses'][0]['fullTextAnnotation']['text']
-            
+
          except Exception as e:
             return message
 

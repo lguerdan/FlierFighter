@@ -10,13 +10,19 @@ def process_image(message):
    jresp['title'] = message.split('\n')[0]
    ' '.join(jresp['title'].split())
 
-   # Add location if it is valid
+   #Add location if it is valid
    geolocator = Nominatim()
    for line in message.split('\n')[1:]:
       try:
-         location = geolocator.geocode(line)
-         if(location):
-            jresp['location'] = location.address
+         if line.count(' ') > 0 \
+         and not is_date(d) \
+         and not re.match('\d{2}:\d{2}:\d{2}', d) \
+         and "PM" not in d \
+         and "AM" not in d:
+            location = geolocator.geocode(line)
+            if(location and location.longitude < -30.0):
+               jresp['location'] = location.address
+
 
       except Exception as e:
          pass
