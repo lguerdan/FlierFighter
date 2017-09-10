@@ -6,9 +6,13 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "dependencies": {
+    "@google-cloud/vision": "^0.12.0",
+    "buffer": "^5.0.7",
     "expo": "^20.0.0",
     "react": "16.0.0-alpha.12",
+    "react-cloud-vision-api": "^0.3.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-20.0.0.tar.gz",
-    "react-native-material-ui": "^1.13.0"
+    "react-native-material-ui": "^1.13.0",
+    "react-native-uploader": "0.0.10"
   }
 }
