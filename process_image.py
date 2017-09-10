@@ -23,7 +23,7 @@ def process_image(res, message):
    # responses = res['responses'][0]
    # textT = responses['textAnnotations']
    # descript = textT[0]['description']
-   descript = res
+   descript = message
    descript = descript.split('\n')
    print "The number of newlines: " + str(len(descript))
    #Add location if it is valid
