@@ -1,6 +1,11 @@
 from flask import Flask, jsonify, render_template, request, json
 import requests, base64, os, re
+from wit import Wit
+from geopy.geocoders import Nominatim
+from dateutil.parser import parse
+
 import location_info, extraData, process_image
+
 
 app = Flask(__name__)
 
@@ -14,9 +19,13 @@ def getImage():
       image_file = "app/images/" + request.args.get('file')
       with open(image_file, "rb") as image_file:
          message = process_image.get_image_mssg(base64.b64encode(image_file.read()))
+         res = message
 
          try:
+            # print json.dumps(json.loads(message), indent=4)
+            # print json.dumps(message)
             message = message['responses'][0]['fullTextAnnotation']['text']
+            
          except Exception as e:
             return message
 
@@ -47,7 +56,6 @@ def confirmation():
         else:
             response['lyft'] = {}
     return response
-
 
 if __name__ == '__main__':
    # Bind to PORT if defined, otherwise default to 5000.

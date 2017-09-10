@@ -3,9 +3,17 @@ from smartystreets_python_sdk import StaticCredentials, exceptions, ClientBuilde
 from smartystreets_python_sdk.us_extract import Lookup
 import datefinder
 import nltk
-from nltk import word_tokenize
+from nltk.tag import StanfordNERTagger
+from nltk.tokenize import word_tokenize
 from nameparser.parser import HumanName
 # from nltk.corpus import stopwords
+
+
+def tok(text):
+    tokens = nltk.word_tokenize(text)
+    tagged = nltk.pos_tag(tokens)
+    return tagged
+
 
 '''
 Returns an array of words with stop words reduced
@@ -24,7 +32,7 @@ def extract_location(text):
    print text
    creds = authenticate()
    client = ClientBuilder(creds).build_us_extract_api_client()
-   lookup = Lookup("2017 Chadwick Drive")
+   lookup = Lookup(text)
    result = client.send(lookup)
    set_of_addresses = []
    for address in result.addresses:
