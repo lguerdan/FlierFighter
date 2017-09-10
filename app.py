@@ -7,7 +7,6 @@ app = Flask(__name__)
 # Temp allow get for dev settings
 @app.route('/getImage', methods=['POST', 'GET'])
 def getImage():
-   print request.json
    if request.method == 'POST':
       message = json.dumps(request.json['imageData'].encode("utf-8"))
 
@@ -21,9 +20,6 @@ def getImage():
          except Exception as e:
             return message
 
-   re.sub('[^a-zA-Z0-9\.]', ' ', message)
-   message = message.replace('\n', ' ').replace('\r', '')
-   # print message
    jsonResponse = process_image.process_image(message)
    return jsonResponse
 

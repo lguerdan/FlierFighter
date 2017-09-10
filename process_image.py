@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, re
 from flask import jsonify
 from wit import Wit
 from geopy.geocoders import Nominatim
@@ -6,46 +6,55 @@ from geopy.geocoders import Nominatim
 def process_image(message):
    jresp = {}
 
-   jresp['title'] = message.splitlines()[0]
+   message = message.title()
+   jresp['title'] = message.split('\n')[0]
+   ' '.join(jresp['title'].split())
 
    #Add location if it is valid
    geolocator = Nominatim()
-   for line in message.splitlines()[1:]:
+   for line in message.split('\n')[1:]:
       try:
-         location = geolocator.geocode(message)
-         location = None
+         location = geolocator.geocode(line)
          if(location):
-            print location.address
             jresp['location'] = location.address
 
       except Exception as e:
          pass
+
+   re.sub('[^a-zA-Z0-9\.]', ' ', message)
+   message = message.replace('\n', ' ').replace('\r', '')
+   ' '.join(message.split())
+
    try:
       client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
       resp = client.message(message)
    except Exception as e:
       return jsonify({'error': 'Failed to parse image response. Request may be too long.'})
 
-
    #Add time info
    jresp['datetime_from'] = ""
    jresp['datetime_to'] = ""
-   if('datetime' in resp['entities']):
-      try:
-         first = resp['entities']['datetime'][0]
-         if ('values' in first and len(first['values']) > 0):
+   try:
+      if('datetime' in resp['entities']):
+         try:
+            first = resp['entities']['datetime'][0]
+            if ('values' in first and len(first['values']) > 0):
 
-            jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
-         else:
-            jresp['datetime_from'] = resp['entities']['datetime'][0]['value']
+               jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
+            else:
+               jresp['datetime_from'] = resp['entities']['datetime'][0]['value']
 
-      except KeyError as e:
-         jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
-         jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
+         except KeyError as e:
+            jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
+            jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
 
-   else:
-      jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
-      jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
+      else:
+         jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
+         jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
+
+   except Exception as e:
+         jresp['datetime_from'] = ""
+         jresp['datetime_from'] = ""
 
    if('location' not in jresp):
       #Add location if not already set
