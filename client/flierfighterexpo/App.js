@@ -15,6 +15,7 @@ import {Button, COLOR, ThemeProvider } from 'react-native-material-ui';
 const GOOGLE_VISION_API = 'AIzaSyAchuzZ-iR_Mswd5WUYFOgck8MRP6AQnM0';
 const GOOGLE_VISION_URL = 'https://vision.googleapis.com/v1/images:annotate?key=';
 const FLIERFIGHTER_URL ='https://fliers.herokuapp.com/getImage';
+const CONFIRM_URL = 'https://fliers.herokuapp.com/confirmation';
 
 const uiTheme = {
     palette: {
@@ -43,13 +44,14 @@ export default class Main extends Component {
 class App extends Component {
   state = {
     imageUri : null,
+    location: null,
     text : null,
     ORC : false,
     eventDetail : false,
     datetime_from:null,
     datetime_to:null,
-    location:null,
     title:null,
+    position:null
   }
 
   render(){
@@ -137,16 +139,54 @@ class App extends Component {
     }
   }
 
-  submitCorrections = () => {
+  submitCorrections = async () => {
     console.log('go!')
+    time = this.HRDtoTImestamp(this.state.datetime_from);
+    const response = await fetch(`${CONFIRM_URL}`, {
+      method : 'POST',
+      headers : {
+        'Accept' : 'application/json',
+        'Content-Type' : 'application/json'
+      },
+      body: JSON.stringify({'lat': this.state.position.coords.latitude,'lng': this.state.position.coords.longitude, location : this.state.location, datetime_from : time})
+    });
+    const result = await response.text();
+    console.log('submitted',result);
   }
+
+  componentWillMount = () => {
+    this._getLocationAsync();
+  }
+
+  _getLocationAsync = async () => {
+    let { status } = await Expo.Permissions.askAsync(Expo.Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+    }
+
+    let position = await Expo.Location.getCurrentPositionAsync({});
+    this.setState({ position });
+    console.log('position',position)
+  };
 
   timestampToHRD = (ts) => {
     if (ts.length > 0){
-      let re = /-/;
       ts = ts.replace(/-/g,'/');
-      ts = ts.replace(/T/g,'\t');
+      ts = ts.replace(/T/g,' ');
       ts = ts.slice(0,-10);
+    }
+
+    return ts
+  }
+
+  HRDtoTImestamp = (ts) => {
+    if (ts.length > 0){
+      ts = ts.replace('/','-');
+      ts = ts.replace('/','-');
+      ts = ts.replace(/ /g,'T');
+      ts = ts + '.000-07:00'
     }
 
     return ts
