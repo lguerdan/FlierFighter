@@ -6,7 +6,7 @@ import nltk
 from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize
 from nameparser.parser import HumanName
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 
 
 def tok(text):
