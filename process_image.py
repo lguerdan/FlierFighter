@@ -17,7 +17,7 @@ def process_image(res, message):
    jresp = {}
 
    message = message.title()
-   jresp['title'] = message.split('\n')[0]
+   jresp['title'] = message.split('\N')[0]
    ' '.join(jresp['title'].split())
 
    # responses = res['responses'][0]
