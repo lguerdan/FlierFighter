@@ -14,6 +14,7 @@ app = Flask(__name__)
 def getImage():
    if request.method == 'POST':
       message = json.dumps(request.json['imageData'].encode("utf-8"))
+      res = message
 
    else:
       image_file = "app/images/" + request.args.get('file')
