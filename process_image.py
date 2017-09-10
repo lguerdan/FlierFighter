@@ -21,10 +21,6 @@ def process_image(message):
       except Exception as e:
          pass
 
-   re.sub('[^a-zA-Z0-9\.]', ' ', message)
-   message = message.replace('\n', ' ').replace('\r', '')
-   ' '.join(message.split())
-
    try:
       client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
       resp = client.message(message)
@@ -64,6 +60,16 @@ def process_image(message):
          jresp['location'] = resp['entities']['local_search_query'][0]['value']
       else:
          jresp['location'] = ""
+
+   # Sanatize input
+   re.sub('[^a-zA-Z0-9\.]', ' ', jresp['location'])
+   ' '.join(jresp['location'].split())
+
+   re.sub('[^a-zA-Z0-9\.]', ' ', jresp['datetime_from'])
+   ' '.join(jresp['datetime_from'].split())
+
+   re.sub('[^a-zA-Z0-9\.]', ' ', jresp['datetime_to'])
+   ' '.join(jresp['datetime_to'].split())
 
    print jresp
    return jsonify(jresp)
