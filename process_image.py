@@ -36,7 +36,10 @@ def process_image(res, message):
         and not re.search('\d{1}AM', d) \
         and not re.search('\d{1}PM', d):
            print d
-           location = geolocator.geocode(d)
+           try:
+              location = geolocator.geocode(d)
+           except Exception as e:
+              pass
            if location:
                if location.longitude < -30.0:
                    jresp['location'] = location.address
