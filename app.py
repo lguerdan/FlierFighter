@@ -15,7 +15,7 @@ def getImage():
       message = json.dumps(request.json['imageData'].encode("utf-8"))
 
    else:
-      image_file = "app/images/train6.jpg"
+      image_file = "app/images/" + request.args.get('file')
       with open(image_file, "rb") as image_file:
          message = get_image_mssg(base64.b64encode(image_file.read()))
 
@@ -37,22 +37,33 @@ def process_image(message):
       client = Wit('KL3MRYO3BEEASGTV7SVJF7CT6T2327UH')
       resp = client.message(message)
    except Exception as e:
-      return jsonify({error: 'Failed to parse image response. Request may be too long.'})
+      return jsonify({'error': 'Failed to parse image response. Request may be too long.'})
 
    jresp = {}
    jresp['datetime_from'] = ""
    jresp['datetime_to'] = ""
-
+   print resp['entities']
    #Add time info
    if('datetime' in resp['entities']):
       try:
-         jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
+         first = resp['entities']['datetime'][0]
+         if ('values' in first and len(first['values']) > 0):
+
+            jresp['datetime_from'] = resp['entities']['datetime'][0]['values'][0]['value']
+         else:
+            jresp['datetime_from'] = resp['entities']['datetime'][0]['value']
 
       except KeyError as e:
          jresp['datetime_from'] = resp['entities']['datetime'][0]['from']['value']
          jresp['datetime_to'] = resp['entities']['datetime'][0]['to']['value']
 
+      # finally:
+      #    jresp['datetime_from'] = ""
+      #    jresp['datetime_to'] = ""
+
+
    else:
+      jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
       jresp['datetime_from'] = resp['entities'][0]['value'][0]['value']
 
 
